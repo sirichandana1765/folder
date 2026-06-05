@@ -2,7 +2,7 @@ import os
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
-import joblib
+import pickle
 
 from fetch_data import fetch_if_missing
 
@@ -21,8 +21,10 @@ def main():
     Xs = scaler.fit_transform(X)
     pca = PCA(n_components=2)
     pca.fit(Xs)
-    joblib.dump(pca, os.path.join('project', 'models', 'pca_model.pkl'))
-    joblib.dump(scaler, os.path.join('project', 'models', 'scaler.pkl'))
+    with open(os.path.join('project', 'models', 'pca_model.pkl'), 'wb') as f:
+        pickle.dump(pca, f, protocol=pickle.HIGHEST_PROTOCOL)
+    with open(os.path.join('project', 'models', 'scaler.pkl'), 'wb') as f:
+        pickle.dump(scaler, f, protocol=pickle.HIGHEST_PROTOCOL)
     print('Saved PCA and scaler to project/models/')
 
 

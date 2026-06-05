@@ -1,6 +1,6 @@
 scikit-learn
 pandas
-joblib
+# joblib removed: using pickle from the standard library instead
 requests
 # optional: kaggle (for downloading Kaggle datasets via the kaggle CLI)
 # kaggle

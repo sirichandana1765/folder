@@ -1,5 +1,5 @@
 import os
-import joblib
+import pickle
 import pandas as pd
 import streamlit as st
 
@@ -12,8 +12,10 @@ PCA_PATH = os.path.join(MODEL_DIR, 'pca_model.pkl')
 def load_models():
     if not os.path.exists(SCALER_PATH) or not os.path.exists(PCA_PATH):
         return None, None
-    scaler = joblib.load(SCALER_PATH)
-    pca = joblib.load(PCA_PATH)
+    with open(SCALER_PATH, 'rb') as f:
+        scaler = pickle.load(f)
+    with open(PCA_PATH, 'rb') as f:
+        pca = pickle.load(f)
     return scaler, pca
 
 

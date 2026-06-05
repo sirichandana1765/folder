@@ -3,7 +3,7 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
-import joblib
+import pickle
 
 from fetch_data import fetch_if_missing
 
@@ -28,9 +28,12 @@ def main():
     tsne = TSNE(n_components=2, init='pca', random_state=42)
     emb = tsne.fit_transform(Xp)
 
-    joblib.dump({'embedding': emb, 'index': df.index.tolist()}, os.path.join('tsne_project', 'models', 'tsne_embedding.pkl'))
-    joblib.dump(scaler, os.path.join('tsne_project', 'models', 'scaler.pkl'))
-    joblib.dump(pca, os.path.join('tsne_project', 'models', 'pca.pkl'))
+    with open(os.path.join('tsne_project', 'models', 'tsne_embedding.pkl'), 'wb') as f:
+        pickle.dump({'embedding': emb, 'index': df.index.tolist()}, f, protocol=pickle.HIGHEST_PROTOCOL)
+    with open(os.path.join('tsne_project', 'models', 'scaler.pkl'), 'wb') as f:
+        pickle.dump(scaler, f, protocol=pickle.HIGHEST_PROTOCOL)
+    with open(os.path.join('tsne_project', 'models', 'pca.pkl'), 'wb') as f:
+        pickle.dump(pca, f, protocol=pickle.HIGHEST_PROTOCOL)
     print('Saved t-SNE embedding and helpers to tsne_project/models/')
 
 
