@@ -3,9 +3,11 @@ import pickle
 import pandas as pd
 import streamlit as st
 
-MODEL_DIR = os.path.join('project', 'models')
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_DIR = os.path.join(BASE_DIR, 'models')
 SCALER_PATH = os.path.join(MODEL_DIR, 'scaler.pkl')
 PCA_PATH = os.path.join(MODEL_DIR, 'pca_model.pkl')
+SAMPLE_PATH = os.path.join(BASE_DIR, 'data', 'anydataset.csv')
 
 
 @st.cache_resource
@@ -37,11 +39,10 @@ def main():
         except Exception as e:
             st.error(f'Failed to read uploaded CSV: {e}')
     elif use_sample:
-        sample_path = os.path.join('project', 'data', 'anydataset.csv')
-        if os.path.exists(sample_path):
-            df = pd.read_csv(sample_path)
+        if os.path.exists(SAMPLE_PATH):
+            df = pd.read_csv(SAMPLE_PATH)
         else:
-            st.warning('Sample dataset not found at project/data/anydataset.csv')
+            st.warning(f'Sample dataset not found at {SAMPLE_PATH}')
 
     if df is None:
         st.info('Provide a dataset to see PCA components.')

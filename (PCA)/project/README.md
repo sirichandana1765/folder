@@ -23,7 +23,7 @@ For Kaggle datasets, install the `kaggle` CLI and authenticate, then set `DATA_U
 Run the Streamlit UI to interactively transform data with the trained PCA model:
 
 ```bash
-pip install -r project/requirements.txt
-streamlit run project/app.py
+pip install -r requirements.txt
+streamlit run app.py
 ```
 
