@@ -41,7 +41,10 @@ def main():
         st.error('No numeric columns found in the dataset.')
         return
 
-    perplexity = st.slider('Perplexity', 5, 50, 30)
+    n_samples = len(numeric)
+    max_perplexity = max(5, (n_samples - 1) // 3)
+    
+    perplexity = st.slider('Perplexity', 5, min(50, max_perplexity), min(30, max_perplexity))
     learning_rate = st.slider('Learning rate', 10, 1000, 200)
     n_iter = st.slider('Iterations', 250, 5000, 1000)
     do_pca = st.checkbox('Run initial PCA (recommended for high-dimensional data)', value=True)
@@ -56,13 +59,16 @@ def main():
         else:
             Xp = Xs
 
-        tsne = TSNE(n_components=2, perplexity=perplexity, learning_rate=learning_rate, max_iter=n_iter, init='pca', random_state=42)
-        emb = tsne.fit_transform(Xp)
-        emb_df = pd.DataFrame(emb, columns=['tsne1', 'tsne2'])
-        st.subheader('t-SNE embedding (first rows)')
-        st.dataframe(emb_df.head())
-        csv = pd.concat([df.reset_index(drop=True), emb_df], axis=1)
-        st.download_button('Download dataset with embedding', csv.to_csv(index=False), file_name='tsne_with_embedding.csv')
+        try:
+            tsne = TSNE(n_components=2, perplexity=float(perplexity), learning_rate=float(learning_rate), max_iter=n_iter, init='pca', random_state=42)
+            emb = tsne.fit_transform(Xp)
+            emb_df = pd.DataFrame(emb, columns=['tsne1', 'tsne2'])
+            st.subheader('t-SNE embedding (first rows)')
+            st.dataframe(emb_df.head())
+            csv = pd.concat([df.reset_index(drop=True), emb_df], axis=1)
+            st.download_button('Download dataset with embedding', csv.to_csv(index=False), file_name='tsne_with_embedding.csv')
+        except ValueError as e:
+            st.error(f't-SNE failed: {str(e)}. Try reducing perplexity or iterations.')
 
 
 if __name__ == '__main__':
