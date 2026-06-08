@@ -42,9 +42,15 @@ def main():
         return
 
     n_samples = len(numeric)
-    max_perplexity = max(5, (n_samples - 1) // 3)
+    # t-SNE requires perplexity < (n_samples - 1) / 3
+    max_perplexity = max(1, (n_samples - 1) // 3)
+    min_perplexity = min(5, max_perplexity)
+    default_perplexity = min(30, max_perplexity)
     
-    perplexity = st.slider('Perplexity', 5, min(50, max_perplexity), min(30, max_perplexity))
+    if n_samples < 15:
+        st.warning(f'⚠️ Your dataset has only {n_samples} samples. t-SNE works best with at least 15 samples.')
+    
+    perplexity = st.slider('Perplexity', min_perplexity, min(50, max_perplexity), default_perplexity)
     learning_rate = st.slider('Learning rate', 10, 1000, 200)
     n_iter = st.slider('Iterations', 250, 5000, 1000)
     do_pca = st.checkbox('Run initial PCA (recommended for high-dimensional data)', value=True)
