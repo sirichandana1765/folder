@@ -56,7 +56,7 @@ def main():
         else:
             Xp = Xs
 
-        tsne = TSNE(n_components=2, perplexity=perplexity, learning_rate=learning_rate, n_iter=n_iter, init='pca', random_state=42)
+        tsne = TSNE(n_components=2, perplexity=perplexity, learning_rate=learning_rate, max_iter=n_iter, init='pca', random_state=42)
         emb = tsne.fit_transform(Xp)
         emb_df = pd.DataFrame(emb, columns=['tsne1', 'tsne2'])
         st.subheader('t-SNE embedding (first rows)')
