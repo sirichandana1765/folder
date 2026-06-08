@@ -2,6 +2,8 @@ import os
 import pickle
 import pandas as pd
 import streamlit as st
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_DIR = os.path.join(BASE_DIR, 'models')
@@ -10,10 +12,39 @@ PCA_PATH = os.path.join(MODEL_DIR, 'pca_model.pkl')
 SAMPLE_PATH = os.path.join(BASE_DIR, 'data', 'anydataset.csv')
 
 
+def train_models():
+    """Automatically train models if they don't exist"""
+    os.makedirs(MODEL_DIR, exist_ok=True)
+    
+    if not os.path.exists(SAMPLE_PATH):
+        raise FileNotFoundError(f'Dataset not found at {SAMPLE_PATH}')
+    
+    df = pd.read_csv(SAMPLE_PATH)
+    X = df.select_dtypes(include=['number']).fillna(0)
+    
+    if X.shape[1] < 1:
+        raise ValueError('No numeric columns found in the dataset.')
+    
+    scaler = StandardScaler()
+    Xs = scaler.fit_transform(X)
+    n_components = min(2, Xs.shape[1])
+    pca = PCA(n_components=n_components)
+    pca.fit(Xs)
+    
+    with open(SCALER_PATH, 'wb') as f:
+        pickle.dump(scaler, f, protocol=pickle.HIGHEST_PROTOCOL)
+    with open(PCA_PATH, 'wb') as f:
+        pickle.dump(pca, f, protocol=pickle.HIGHEST_PROTOCOL)
+    
+    return scaler, pca
+
+
 @st.cache_resource
 def load_models():
     if not os.path.exists(SCALER_PATH) or not os.path.exists(PCA_PATH):
-        return None, None
+        with st.spinner('Training models... This may take a moment.'):
+            train_models()
+    
     with open(SCALER_PATH, 'rb') as f:
         scaler = pickle.load(f)
     with open(PCA_PATH, 'rb') as f:
@@ -24,9 +55,6 @@ def load_models():
 def main():
     st.title('PCA Transform')
     scaler, pca = load_models()
-    if scaler is None or pca is None:
-        st.error('Models not found. Run `project/train.py` first to generate `pca_model.pkl` and `scaler.pkl` in project/models/.')
-        st.stop()
 
     st.markdown('Upload a CSV or use the sample dataset shipped with the project.')
     uploaded = st.file_uploader('Upload CSV', type=['csv'])
